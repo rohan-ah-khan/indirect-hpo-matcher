@@ -2,9 +2,8 @@ name: portable-hpo-matcher
 channels:
   - conda-forge
 dependencies:
-  - python=3.11
-  - pandas=2.2
-  - wget
+  - python
+  - pandas
   - pip
   - pip:
-      - hpo-toolkit==0.8.1
+      - hpo-toolkit
