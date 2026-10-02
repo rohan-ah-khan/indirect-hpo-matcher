@@ -604,7 +604,7 @@ def get_indirect_hpo_gene_matches(patient_hpo_ids: Iterable[str], data: dict) ->
                     patient_pair_scores.get(pair, 0.0), score
                 )
 
-    # Format indirect matches with the same patient-term columns used by exact matches.
+    # Format indirect matches with the same patient-term columns used by exact matches
     rows = []
     for pair, score in sorted(patient_pair_scores.items()):
         gene, term_id = pair
