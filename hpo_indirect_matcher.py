@@ -538,9 +538,10 @@ def load_references(ontology_path: str | Path, gene_annotations: pd.DataFrame) -
 
 
 def get_indirect_hpo_gene_matches(patient_hpo_ids: Iterable[str], data: dict) -> pd.DataFrame:
-    """Return one row per indirect gene and candidate-HPO pair."""
-    # Keep the best score if multiple patient terms produce the same gene/HPO pair.
-    pair_scores: dict[tuple[str, str], float] = {}
+    """Return one row per indirect gene and patient-HPO pair."""
+    # Candidate terms are evidence for connecting a gene to the original patient term.
+    # Keep only the strongest candidate relationship for each gene/patient-term pair.
+    patient_pair_scores: dict[tuple[str, str], float] = {}
 
     for hpo_id in patient_hpo_ids:
         # Resolve older IDs and ignore unknown terms or terms outside Phenotypic abnormality.
@@ -594,15 +595,18 @@ def get_indirect_hpo_gene_matches(patient_hpo_ids: Iterable[str], data: dict) ->
         ):
             continue
 
-        # Expand each accepted candidate term into its directly annotated gene/HPO pairs.
+        # Expand accepted candidate terms into genes, but report the original patient
+        # term. Several candidates can support the same gene, so retain the best score.
         for candidate_hpo, candidate_genes, score in candidate_matches:
             for gene in candidate_genes:
-                pair = (gene, candidate_hpo)
-                pair_scores[pair] = max(pair_scores.get(pair, 0.0), score)
+                pair = (gene, patient_hpo)
+                patient_pair_scores[pair] = max(
+                    patient_pair_scores.get(pair, 0.0), score
+                )
 
-    # Format indirect matches with the same core columns used by the exact-match table.
+    # Format indirect matches with the same patient-term columns used by exact matches.
     rows = []
-    for pair, score in sorted(pair_scores.items()):
+    for pair, score in sorted(patient_pair_scores.items()):
         gene, term_id = pair
         rows.append({
             "gene_symbol": gene,
