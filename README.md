@@ -6,9 +6,10 @@ creates a gene-level TSV containing both exact and indirectly related phenotype
 annotations. Snakemake and a pipeline-generated HPO file are not required.
 
 Exact gene–phenotype annotations receive a score of `1.0`. The matching
-logic in `hpo_indirect_matcher.py` adds nearby ontology terms that pass its
-relationship, wording, annotation-profile, and broadness checks. Indirect scores
-are rule-based indicators of matching support rather than probabilities.
+logic in `hpo_indirect_matcher.py` uses nearby ontology terms to recover additional
+genes. The output reports the original proband term with the highest supporting
+score rather than the indirect term itself. Indirect scores are rule-based
+indicators of matching support rather than probabilities.
 
 ## Repository contents
 
@@ -89,14 +90,13 @@ The output contains one row per gene:
 | --- | --- |
 | `Gene Symbol` | HGNC gene symbol from the HPO annotation file. |
 | `Gene ID` | Ensembl gene ID from `ensembl_to_NCBI_ID.csv`. |
-| `Number of occurrences` | Number of unique matched HPO terms for the gene. |
-| `Features` | Matched term names with their scores. |
-| `HPO IDs` | Matched HPO IDs in the same order as `Features`. |
-| `HPO Match Score` | Scores in the same order as the matched terms. |
+| `Number of occurrences` | Number of unique proband HPO terms for the gene. |
+| `Features` | Proband term names with their scores. |
+| `HPO IDs` | Proband HPO IDs in the same order as `Features`. |
+| `HPO Match Score` | Scores in the same order as the proband terms. |
 
-If the same gene–HPO pair is reached from more than one proband term, only its
-highest score is retained. Direct and indirect matches are then combined before
-the table is grouped by gene.
+If multiple indirect terms connect the same gene to a proband term, only the
+highest score is retained. An exact match takes precedence with a score of `1.0`.
 
 ## Included example
 
